@@ -1,0 +1,17 @@
+# SSH keys - never commit
+.ssh/
+
+# Environment secrets
+.env
+
+# Screenshots with sensitive data
+anthropic-login*
+
+# Claude local settings
+.claude/
+
+# Hostinger n8n node (separate repo)
+api-n8n-node/
+
+# HTML test files
+*.html
