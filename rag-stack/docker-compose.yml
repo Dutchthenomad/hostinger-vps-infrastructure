@@ -16,7 +16,7 @@ services:
     networks:
       - n8n_default
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:6333/"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/6333' 2>/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
