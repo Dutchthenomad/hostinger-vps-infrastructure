@@ -1,0 +1,162 @@
+{
+  "name": "RAG Stack Health API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "rag-health",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "rag-health"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://qdrant:6333/collections",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "check-qdrant",
+      "name": "Check Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 180]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  'timescaledb' as service,\n  (SELECT COUNT(*) FROM websocket_events) as event_count,\n  NOW() as checked_at",
+        "options": {}
+      },
+      "id": "check-timescaledb",
+      "name": "Check TimescaleDB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [480, 300],
+      "credentials": {
+        "postgres": {
+          "id": "TIMESCALE_CREDENTIAL_ID",
+          "name": "TimescaleDB Analytics"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://rabbitmq:15672/api/queues/n8n",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "check-rabbitmq",
+      "name": "Check RabbitMQ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 420],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "RABBITMQ_HTTP_CREDENTIAL_ID",
+          "name": "RabbitMQ HTTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "options": {}
+      },
+      "id": "merge-results",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine all health check results\nconst items = $input.all();\n\nconst qdrantResult = items.find(i => i.json.result !== undefined);\nconst tsdbResult = items.find(i => i.json.service === 'timescaledb');\nconst rabbitResult = items.find(i => Array.isArray(i.json));\n\nconst response = {\n  status: 'healthy',\n  timestamp: new Date().toISOString(),\n  services: {\n    qdrant: {\n      status: qdrantResult ? 'up' : 'down',\n      collections: qdrantResult?.json?.result?.collections?.length || 0\n    },\n    timescaledb: {\n      status: tsdbResult ? 'up' : 'down',\n      event_count: parseInt(tsdbResult?.json?.event_count) || 0\n    },\n    rabbitmq: {\n      status: rabbitResult ? 'up' : 'down',\n      queues: rabbitResult?.json?.length || 0\n    }\n  },\n  message: 'RAG Stack operational - ready for agentic access'\n};\n\n// Check if any service is down\nconst allUp = Object.values(response.services).every(s => s.status === 'up');\nresponse.status = allUp ? 'healthy' : 'degraded';\n\nreturn [{ json: response }];"
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1140, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          { "node": "Check Qdrant", "type": "main", "index": 0 },
+          { "node": "Check TimescaleDB", "type": "main", "index": 0 },
+          { "node": "Check RabbitMQ", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Check Qdrant": {
+      "main": [
+        [{ "node": "Merge", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check TimescaleDB": {
+      "main": [
+        [{ "node": "Merge", "type": "main", "index": 1 }]
+      ]
+    },
+    "Check RabbitMQ": {
+      "main": [
+        [{ "node": "Merge", "type": "main", "index": 2 }]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [{ "node": "Format Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "active": false
+}

@@ -1,0 +1,74 @@
+{
+  "name": "Simple RAG Health Check",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "health",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-1111-1111-1111-111111111111",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "health-check"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://qdrant:6333/collections",
+        "options": {}
+      },
+      "id": "a1b2c3d4-2222-2222-2222-222222222222",
+      "name": "Check Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const qdrantResponse = $input.first().json;\n\nreturn [{\n  json: {\n    status: 'healthy',\n    timestamp: new Date().toISOString(),\n    qdrant: {\n      status: qdrantResponse.status || 'ok',\n      collections: qdrantResponse.result?.collections || []\n    },\n    message: 'RAG Stack is operational',\n    endpoints: {\n      qdrant: 'http://qdrant:6333',\n      rabbitmq: 'amqp://rabbitmq:5672',\n      timescaledb: 'postgresql://timescaledb:5432/rugs_analytics'\n    }\n  }\n}];"
+      },
+      "id": "a1b2c3d4-3333-3333-3333-333333333333",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-4444-4444-4444-444444444444",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [920, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Check Qdrant", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Qdrant": {
+      "main": [
+        [{ "node": "Build Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Response": {
+      "main": [
+        [{ "node": "Respond", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

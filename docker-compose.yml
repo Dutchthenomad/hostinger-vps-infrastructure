@@ -31,6 +31,16 @@ services:
       DB_POSTGRESDB_USER: ${POSTGRES_USER}
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
       GENERIC_TIMEZONE: ${GENERIC_TIMEZONE}
+      # SMTP Configuration (Resend)
+      N8N_EMAIL_MODE: smtp
+      N8N_SMTP_HOST: smtp.resend.com
+      N8N_SMTP_PORT: 465
+      N8N_SMTP_USER: resend
+      N8N_SMTP_PASS: ${RESEND_API_KEY}
+      N8N_SMTP_SSL: "true"
+      N8N_SMTP_SENDER: onboarding@resend.dev
+      # Allow HTTP access without secure cookies (no TLS yet)
+      N8N_SECURE_COOKIE: "false"
     depends_on:
       - postgres
     volumes:

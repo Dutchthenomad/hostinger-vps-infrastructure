@@ -3,6 +3,7 @@
 
 # Environment secrets
 .env
+CREDENTIALS.md
 
 # Screenshots with sensitive data
 anthropic-login*

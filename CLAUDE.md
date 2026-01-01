@@ -128,7 +128,7 @@ ssh hostinger-vps
 | Tailscale IP | 100.113.138.27 |
 | SSH User | root |
 
-### System Specs (Updated 2025-12-31)
+### System Specs (Updated 2026-01-01)
 
 | Resource | Value |
 |----------|-------|
@@ -177,6 +177,37 @@ ssh hostinger-vps
 - **RabbitMQ Management**: http://72.62.160.2:15672
 - **Qdrant Dashboard**: http://72.62.160.2:6333/dashboard
 - **Tailscale n8n**: http://100.113.138.27:5678
+
+### n8n Configuration
+
+| Setting | Value |
+|---------|-------|
+| Email Mode | SMTP (Resend) |
+| SMTP Host | smtp.resend.com:465 |
+| Sender | onboarding@resend.dev |
+| Secure Cookie | Disabled (HTTP access) |
+| Timezone | America/New_York |
+
+### n8n Workflows
+
+| Workflow | Endpoint | Status | Purpose |
+|----------|----------|--------|---------|
+| Simple RAG Health Check | GET `/webhook/health` | Active | Health check for RAG stack |
+
+**Example agentic call:**
+```bash
+curl http://72.62.160.2:5678/webhook/health
+# Returns: {"status":"healthy","qdrant":{"status":"ok"},...}
+```
+
+### n8n Credentials (Configured in UI)
+
+| Name | Type | Target Service |
+|------|------|----------------|
+| TimescaleDB Analytics | PostgreSQL | timescaledb:5432 |
+| RabbitMQ HTTP | HTTP Basic Auth | rabbitmq:15672 |
+
+> **Note:** Actual credentials stored in `CREDENTIALS.md` (gitignored)
 
 ### VPS Directory Structure
 
