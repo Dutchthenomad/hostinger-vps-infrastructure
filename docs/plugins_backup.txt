@@ -1,0 +1,12 @@
+total 52
+drwxrwxr-x  7 nomad nomad 4096 Dec 28 20:52 .
+drwxrwxr-x 16 nomad nomad 4096 Jan  1 21:02 ..
+drwx------  7 nomad nomad 4096 Jan  1 21:07 cache
+-rw-rw-r--  1 nomad nomad   24 Nov 12 17:18 config.json
+-rw-------  1 nomad nomad 4464 Dec 28 01:30 install-counts-cache.json
+-rw-------  1 nomad nomad 5002 Jan  1 20:50 installed_plugins.json
+-rw-rw-r--  1 nomad nomad 1763 Jan  1 20:50 known_marketplaces.json
+drwxrwxr-x  3 nomad nomad 4096 Dec 28 20:52 local
+drwx------  9 nomad nomad 4096 Dec 23 22:07 marketplaces
+drwx------  3 nomad nomad 4096 Nov 16 20:09 npm-cache
+drwxrwxr-x  2 nomad nomad 4096 Sep 12 20:56 repos

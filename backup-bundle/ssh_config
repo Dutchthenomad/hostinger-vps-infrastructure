@@ -1,0 +1,7 @@
+
+# Hostinger VPS - DevOps Access
+Host hostinger-vps
+    HostName 72.62.160.2
+    User root
+    IdentityFile /home/nomad/Desktop/VPS/.ssh/hostinger_vps
+    IdentitiesOnly yes

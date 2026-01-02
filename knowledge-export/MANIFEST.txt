@@ -1,0 +1,9 @@
+Knowledge Export Manifest
+Created: Thu Jan  1 09:18:46 PM EST 2026
+
+2.7M	/home/nomad/Desktop/VPS/knowledge-export/external-docs
+4.0K	/home/nomad/Desktop/VPS/knowledge-export/MANIFEST.txt
+52K	/home/nomad/Desktop/VPS/knowledge-export/rl-design
+824K	/home/nomad/Desktop/VPS/knowledge-export/rugipedia
+
+Total markdown files: 237

@@ -1,0 +1,9 @@
+Checking MCP server health...
+
+plugin:superpowers-chrome:chrome: node /home/nomad/.claude/plugins/cache/superpowers-marketplace/superpowers-chrome/1.6.1/mcp/dist/index.js - ✓ Connected
+plugin:context7:context7: npx -y @upstash/context7-mcp - ✓ Connected
+puppeteer: npx -y @modelcontextprotocol/server-puppeteer - ✓ Connected
+github: npx -y @modelcontextprotocol/server-github - ✓ Connected
+chroma: /home/nomad/.local/bin/uvx chroma-mcp --client-type persistent --data-dir /home/nomad/.chroma - ✓ Connected
+chrome-devtools: npx -y chrome-devtools-mcp@latest --browser-url=http://127.0.0.1:9222 - ✓ Connected
+claude-flow: python /home/nomad/Desktop/claude-flow/mcp-server/server.py - ✗ Failed to connect
