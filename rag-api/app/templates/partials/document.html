@@ -1,0 +1,20 @@
+<div class="document-view">
+    <div class="document-header">
+        <h3>{{ source }}</h3>
+        <span class="chunk-total">{{ documents|length }} chunks</span>
+    </div>
+
+    <div class="document-content">
+        {% for doc in documents %}
+        <div class="document-chunk">
+            <div class="chunk-header">
+                <span class="chunk-number">Chunk {{ doc.chunk_index }}</span>
+                <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.document-chunk').querySelector('.chunk-text').textContent)">
+                    Copy
+                </button>
+            </div>
+            <div class="chunk-text">{{ doc.text }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

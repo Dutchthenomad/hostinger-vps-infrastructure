@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RAG Knowledge Base{% endblock %}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">RAG Knowledge</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Search</a>
+            <a href="/browse" class="{% if '/browse' in request.url.path %}active{% endif %}">Browse</a>
+            <a href="/docs" target="_blank">API Docs</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <span>RAG Knowledge API</span>
+        <span class="separator">|</span>
+        <span id="session-indicator" title="Session ID">Session: {{ session_id[:8] if session_id else 'None' }}...</span>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% if history %}
+<ul class="history-list">
+    {% for item in history %}
+    <li class="history-item"
+        hx-post="/partials/results"
+        hx-target="#results"
+        hx-vals='{"query": "{{ item.query }}", "collections": {{ item.collections|tojson }}}'>
+        <span class="history-query">{{ item.query|truncate(30) }}</span>
+        <span class="history-meta">{{ item.result_count }} results</span>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="history-empty">
+    <p>No queries yet</p>
+</div>
+{% endif %}

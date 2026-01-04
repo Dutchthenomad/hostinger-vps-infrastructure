@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Search - RAG Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="search-main">
+        <h1>Knowledge Base Search</h1>
+
+        <form class="search-form"
+              hx-post="/partials/results"
+              hx-target="#results"
+              hx-indicator="#loading"
+              hx-on::after-request="htmx.trigger('#history', 'refresh')">
+
+            <div class="search-input-wrapper">
+                <input type="text"
+                       name="query"
+                       placeholder="Search the knowledge base..."
+                       autocomplete="off"
+                       autofocus>
+                <button type="submit">Search</button>
+            </div>
+
+            <div class="collection-filters">
+                <span class="filter-label">Collections:</span>
+                {% for col in collections %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="collections" value="{{ col.name }}" checked>
+                    <span>{{ col.name }}</span>
+                    <small>({{ col.points_count }})</small>
+                </label>
+                {% endfor %}
+            </div>
+        </form>
+
+        <div id="loading" class="htmx-indicator">
+            <div class="spinner"></div>
+            <span>Searching...</span>
+        </div>
+
+        <div id="results">
+            <div class="empty-state">
+                <p>Enter a query to search across {{ collections|sum(attribute='points_count') }} documents</p>
+            </div>
+        </div>
+    </div>
+
+    <aside class="search-sidebar">
+        <h3>Query History</h3>
+        <div id="history"
+             hx-get="/partials/history"
+             hx-trigger="load, refresh">
+        </div>
+    </aside>
+</div>
+{% endblock %}

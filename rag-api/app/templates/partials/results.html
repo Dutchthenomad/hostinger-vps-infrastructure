@@ -1,0 +1,35 @@
+{% if results %}
+<div class="results-header">
+    <span class="results-count">{{ results|length }} results for "{{ query }}"</span>
+</div>
+
+<div class="results-list">
+    {% for result in results %}
+    <div class="result-card">
+        <div class="result-header">
+            <span class="result-source" title="{{ result.source }}">{{ result.source }}</span>
+            <div class="result-meta">
+                <span class="result-collection">{{ result.collection }}</span>
+                <span class="result-score" title="Relevance score">{{ "%.2f"|format(result.score) }}</span>
+            </div>
+        </div>
+        <div class="result-text">{{ result.text[:500] }}{% if result.text|length > 500 %}...{% endif %}</div>
+        <div class="result-footer">
+            <span class="chunk-info">Chunk #{{ result.chunk_index }}</span>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.result-card').querySelector('.result-text').textContent)">
+                Copy
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-results">
+    {% if query %}
+    <p>No results found for "{{ query }}"</p>
+    <p class="suggestion">Try broadening your search or using different keywords.</p>
+    {% else %}
+    <p>Enter a query to search the knowledge base.</p>
+    {% endif %}
+</div>
+{% endif %}

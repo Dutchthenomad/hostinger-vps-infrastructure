@@ -1,0 +1,11 @@
+<div class="sources-list">
+    {% for source in sources %}
+    <div class="source-item"
+         hx-get="/partials/document/{{ collection }}?source={{ source.path|urlencode }}"
+         hx-target="#document-viewer"
+         hx-swap="innerHTML">
+        <span class="source-path">{{ source.path }}</span>
+        <span class="chunk-count">{{ source.chunk_count }} chunks</span>
+    </div>
+    {% endfor %}
+</div>

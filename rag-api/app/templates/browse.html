@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Browse - RAG Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="browse-page">
+    <div class="browse-sidebar">
+        <h2>Collections</h2>
+        <ul class="collection-list">
+            {% for col in collections %}
+            <li class="collection-item {% if active_collection == col.name %}active{% endif %}">
+                <a href="/browse/{{ col.name }}">
+                    <span class="collection-name">{{ col.name }}</span>
+                    <span class="collection-count">{{ col.points_count }} docs</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% if active_collection and sources %}
+        <h3>Sources in {{ active_collection }}</h3>
+        <div class="source-list">
+            {% for source in sources %}
+            <div class="source-item"
+                 hx-get="/partials/document/{{ active_collection }}?source={{ source.path|urlencode }}"
+                 hx-target="#document-viewer"
+                 hx-swap="innerHTML">
+                <span class="source-path" title="{{ source.path }}">{{ source.path|truncate(40) }}</span>
+                <span class="chunk-count">{{ source.chunk_count }} chunks</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="browse-main">
+        {% if not active_collection %}
+        <div class="empty-state">
+            <h2>Select a Collection</h2>
+            <p>Choose a collection from the sidebar to browse its sources and documents.</p>
+
+            <div class="collection-cards">
+                {% for col in collections %}
+                <a href="/browse/{{ col.name }}" class="collection-card">
+                    <h3>{{ col.name }}</h3>
+                    <div class="card-stats">
+                        <span>{{ col.points_count }} documents</span>
+                        <span>{{ col.vector_size }}d vectors</span>
+                    </div>
+                    <div class="card-status status-{{ col.status|lower }}">{{ col.status }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div id="document-viewer">
+            <div class="empty-state">
+                <p>Select a source from the sidebar to view its content.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

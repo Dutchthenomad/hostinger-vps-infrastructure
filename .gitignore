@@ -10,9 +10,18 @@ anthropic-login*
 
 # Claude local settings
 .claude/
+.claude_settings.json
+.auto-claude-security.json
 
 # Hostinger n8n node (separate repo)
 api-n8n-node/
 
-# HTML test files
+# HTML test files (but not templates)
 *.html
+!rag-api/app/templates/**/*.html
+
+# Auto Claude data directory
+.auto-claude/
+
+# RAG API local env (keep .env.example)
+rag-api/.env

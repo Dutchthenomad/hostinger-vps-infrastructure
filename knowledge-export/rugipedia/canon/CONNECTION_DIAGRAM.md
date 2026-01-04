@@ -17,7 +17,7 @@
 │                                                             │
 │   ┌──────────────┐                   ┌────────────────┐    │
 │   │   Your App   │                   │  Rugs.fun API  │    │
-│   │  (REPLAYER)  │◄─────WebSocket───►│   (wss://...)  │    │
+│   │(VECTRA_PLAYER)  │◄─────WebSocket───►│   (wss://...)  │    │
 │   └──────────────┘                   └────────────────┘    │
 │                                                             │
 │   Events Received:                                          │
@@ -44,7 +44,7 @@
 │                                                                   │
 │  ┌──────────────┐    CDP     ┌─────────────────┐  WebSocket     │
 │  │   Your App   │◄──:9222───►│ Chrome Browser  │◄───wss://...───┤
-│  │  (REPLAYER)  │            │  (rugs.fun tab) │                │
+│  │(VECTRA_PLAYER)  │            │  (rugs.fun tab) │                │
 │  └──────────────┘            └─────────────────┘                │
 │         ▲                            │                           │
 │         │                            ▼                           │
@@ -70,11 +70,11 @@
 
 ---
 
-## REPLAYER Integration Architecture
+## VECTRA_PLAYER Integration Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                     REPLAYER Event Flow                                │
+│                    VECTRA_PLAYER Event Flow                                │
 ├────────────────────────────────────────────────────────────────────────┤
 │                                                                        │
 │  ┌────────────────────────────────────────────────────────────┐       │

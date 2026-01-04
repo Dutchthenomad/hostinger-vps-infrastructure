@@ -10,7 +10,7 @@
 
 Rugs.fun uses a provably fair system to ensure game outcomes cannot be manipulated:
 
-1. **Before each game**: The server generates a random server seed and publishes only its hash (the server seed hash).
+1. **Before each game**: The server generates a random server seed using the timestamp and publishes only its hash (the server seed hash).
 2. **During the game**: The outcome is determined by combining the server seed with the game ID.
 3. **After the game ends**: The server reveals the original server seed.
 4. **Verification process**:
@@ -154,7 +154,8 @@ function verifyGame(serverSeed, gameId, version = 'v3') {
 3. **Volatility is capped in v3**: `Math.min(10, Math.sqrt(price))` prevents extreme swings at high prices
 4. **Max ticks**: 5000 (game auto-rugs if not rugged naturally)
 5. **PRNG is deterministic**: Given seed + gameId, outcome is fully reproducible
-
+5. **Meta layer PRNG variables are manipluated in the aggregate as a treasury management mechanism**
+    # Despite the fact that any one game is proveably "random", the game side server is designed to manipulate the variables like volatility, peak price, and so on have been proven by us on multiple occasions. Bayesian statistical analysis to identify mathematically impossible anomalies should be used to identify potential prediction vectors. 
 ---
 
 *Reference documentation for rugs-expert agent and RL training*

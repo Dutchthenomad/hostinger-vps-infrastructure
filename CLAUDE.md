@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains two components:
+This repository contains three components:
 1. **n8n + Postgres Docker deployment** for Hostinger VPS (Docker Manager)
 2. **n8n-nodes-hostinger-api** - A community n8n node for Hostinger API integration
+3. **rag-api** - FastAPI-based RAG Knowledge Base API with web UI
 
 ## Commands
 
@@ -38,6 +39,26 @@ npm run release
 ### Docker Deployment
 
 The `docker-compose.yml` and `.env` files are meant for manual deployment via Hostinger's Docker Manager UI, not command-line Docker. See `SETUP_N8N_HOSTINGER.md` for deployment steps.
+
+### RAG API (rag-api/)
+
+```bash
+cd rag-api
+
+# Build and run locally (requires Qdrant running)
+docker-compose up --build
+
+# Or run directly with Python
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**API Endpoints:**
+- `GET /` - Web UI search interface
+- `GET /browse` - Browse collections and documents
+- `GET /api/health` - Health check
+- `POST /api/search` - Semantic search
+- `GET /api/collections` - List collections with stats
 
 ## Architecture
 
@@ -106,6 +127,14 @@ Deployed via `/root/rag-stack/docker-compose.yml`:
 
 **Purpose**: Store embeddings, buffer WebSocket events, and store time-series analytics for rugs.fun data.
 
+### RAG API Stack
+
+Deployed via `/root/rag-api/docker-compose.yml`:
+
+- **rag-api**: FastAPI knowledge base search UI and API (port 8000)
+- **Dependencies**: Connects to Qdrant from RAG Stack
+- **Features**: HTMX-powered web UI, semantic search, session tracking, document browsing
+
 ---
 
 ## VPS Access & System Info
@@ -128,7 +157,7 @@ ssh hostinger-vps
 | Tailscale IP | 100.113.138.27 |
 | SSH User | root |
 
-### System Specs (Updated 2026-01-01)
+### System Specs (Updated 2026-01-04)
 
 | Resource | Value |
 |----------|-------|
@@ -153,9 +182,10 @@ ssh hostinger-vps
 
 | Container | Image | Port | Status |
 |-----------|-------|------|--------|
+| rag-api | rag-api-rag-api | 8000 | Running (healthy) |
 | n8n | n8nio/n8n:latest | 5678 | Running |
 | n8n-postgres | postgres:16 | 5432 (internal) | Running |
-| qdrant | qdrant/qdrant:latest | 6333, 6334 | Running |
+| qdrant | qdrant/qdrant:latest | 6333, 6334 | Running (healthy) |
 | rabbitmq | rabbitmq:3-management | 5672, 15672 | Running (healthy) |
 | timescaledb | timescale/timescaledb:latest-pg15 | 5433 | Running (healthy) |
 
@@ -168,12 +198,15 @@ ssh hostinger-vps
 | 5672 | RabbitMQ (AMQP) |
 | 6333 | Qdrant (HTTP API) |
 | 6334 | Qdrant (gRPC) |
+| 8000 | RAG API (HTTP) |
 | 15672 | RabbitMQ (Management UI) |
 | 5433 | TimescaleDB (PostgreSQL) |
 
 ### Access URLs
 
 - **n8n UI**: http://72.62.160.2:5678
+- **RAG Knowledge UI**: http://72.62.160.2:8000
+- **RAG API Docs**: http://72.62.160.2:8000/docs
 - **RabbitMQ Management**: http://72.62.160.2:15672
 - **Qdrant Dashboard**: http://72.62.160.2:6333/dashboard
 - **Tailscale n8n**: http://100.113.138.27:5678
@@ -216,9 +249,20 @@ curl http://72.62.160.2:5678/webhook/health
 ├── rag-stack/              # RAG infrastructure docker-compose
 │   ├── docker-compose.yml
 │   └── .env                # RabbitMQ/TimescaleDB credentials
+├── rag-api/                # RAG Knowledge API (FastAPI)
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── app/                # FastAPI application
+├── knowledge/              # Knowledge base markdown files
+│   ├── rugipedia/          # Rugs protocol documentation
+│   ├── rl-design/          # RL design documents
+│   └── external-docs/      # External documentation
 ├── projects/
 │   ├── VECTRA-PLAYER/      # Cloned project
-│   ├── claude-flow/        # Cloned project
-│   └── RAG-INFRASTRUCTURE-PLAN.md
+│   └── claude-flow/        # Cloned project
 ├── scripts/                # Utility scripts
+│   ├── backup-git-repos.sh
+│   └── ingest_knowledge.py
+├── backups/                # Git repo backups
 └── .claude/                # Claude Code configuration
