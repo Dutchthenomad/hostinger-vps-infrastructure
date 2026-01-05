@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  rugs-mcp:
+    build: .
+    container_name: rugs-mcp
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      # rag-api is on same Docker network
+      - RAG_API_URL=http://rag-api:8000
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8001
+    networks:
+      - n8n_default
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  n8n_default:
+    external: true
