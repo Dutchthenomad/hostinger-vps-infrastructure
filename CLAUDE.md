@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains three components:
+This repository contains four components:
 1. **n8n + Postgres Docker deployment** for Hostinger VPS (Docker Manager)
 2. **n8n-nodes-hostinger-api** - A community n8n node for Hostinger API integration
 3. **rag-api** - FastAPI-based RAG Knowledge Base API with web UI
+4. **rugs-mcp** - MCP server providing rugs-expert tools for RAG knowledge access
 
 ## Commands
 
@@ -59,6 +60,30 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `GET /api/health` - Health check
 - `POST /api/search` - Semantic search
 - `GET /api/collections` - List collections with stats
+
+### Rugs MCP Server (rugs-mcp/)
+
+```bash
+cd rugs-mcp
+
+# Build and deploy to VPS
+docker-compose up --build -d
+
+# Check health
+curl http://localhost:8001/health
+```
+
+**MCP Tools:**
+- `search_rugs_knowledge` - Semantic search across knowledge collections
+- `get_game_event_schema` - WebSocket event structure lookup
+- `get_trading_mechanics` - Price curves, volatility, rug conditions
+- `list_knowledge_sources` - Browse available documentation
+
+**Claude Code Integration:**
+```bash
+# Add MCP server to Claude Code
+claude mcp add --transport sse --scope user rugs-expert http://72.62.160.2:8001/sse
+```
 
 ## Architecture
 
@@ -135,6 +160,15 @@ Deployed via `/root/rag-api/docker-compose.yml`:
 - **Dependencies**: Connects to Qdrant from RAG Stack
 - **Features**: HTMX-powered web UI, semantic search, session tracking, document browsing
 
+### Rugs MCP Stack
+
+Deployed via `/root/rugs-mcp/docker-compose.yml`:
+
+- **rugs-mcp**: MCP server for rugs-expert tools (port 8001)
+- **Dependencies**: Connects to RAG API for knowledge retrieval
+- **Features**: SSE transport, 4 specialized tools for rugs.fun game knowledge
+- **Network**: Shared `n8n_default` network for inter-container communication
+
 ---
 
 ## VPS Access & System Info
@@ -182,6 +216,7 @@ ssh hostinger-vps
 
 | Container | Image | Port | Status |
 |-----------|-------|------|--------|
+| rugs-mcp | rugs-mcp | 8001 | Running (healthy) |
 | rag-api | rag-api-rag-api | 8000 | Running (healthy) |
 | n8n | n8nio/n8n:latest | 5678 | Running |
 | n8n-postgres | postgres:16 | 5432 (internal) | Running |
@@ -199,6 +234,7 @@ ssh hostinger-vps
 | 6333 | Qdrant (HTTP API) |
 | 6334 | Qdrant (gRPC) |
 | 8000 | RAG API (HTTP) |
+| 8001 | Rugs MCP Server (SSE) |
 | 15672 | RabbitMQ (Management UI) |
 | 5433 | TimescaleDB (PostgreSQL) |
 
@@ -207,6 +243,8 @@ ssh hostinger-vps
 - **n8n UI**: http://72.62.160.2:5678
 - **RAG Knowledge UI**: http://72.62.160.2:8000
 - **RAG API Docs**: http://72.62.160.2:8000/docs
+- **Rugs MCP Health**: http://72.62.160.2:8001/health
+- **Rugs MCP SSE**: http://72.62.160.2:8001/sse
 - **RabbitMQ Management**: http://72.62.160.2:15672
 - **Qdrant Dashboard**: http://72.62.160.2:6333/dashboard
 - **Tailscale n8n**: http://100.113.138.27:5678
@@ -254,6 +292,11 @@ curl http://72.62.160.2:5678/webhook/health
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── app/                # FastAPI application
+├── rugs-mcp/               # Rugs MCP Server
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── src/                # MCP server implementation
 ├── knowledge/              # Knowledge base markdown files
 │   ├── rugipedia/          # Rugs protocol documentation
 │   ├── rl-design/          # RL design documents
