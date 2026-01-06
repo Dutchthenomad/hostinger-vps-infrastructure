@@ -15,7 +15,7 @@ from mcp.server.sse import SseServerTransport
 from mcp.types import Tool, TextContent
 from starlette.applications import Starlette
 from starlette.routing import Route, Mount
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from .tools import (
     search_rugs_knowledge,
@@ -182,6 +182,8 @@ async def handle_sse(request):
             write_stream,
             server.create_initialization_options()
         )
+    # Return empty response after connection closes
+    return Response()
 
 
 # Create Starlette app with Mount for messages (raw ASGI app)
