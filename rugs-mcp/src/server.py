@@ -14,7 +14,7 @@ from mcp.server import Server
 from mcp.server.sse import SseServerTransport
 from mcp.types import Tool, TextContent
 from starlette.applications import Starlette
-from starlette.routing import Route
+from starlette.routing import Route, Mount
 from starlette.responses import JSONResponse
 
 from .tools import (
@@ -165,11 +165,14 @@ async def health_check(request):
         }, status_code=503)
 
 
+# Create SSE transport as module-level for shared state
+sse_transport = SseServerTransport("/messages/")
+
+
 # SSE endpoint handler
 async def handle_sse(request):
     """Handle SSE connections from MCP clients."""
-    transport = SseServerTransport("/messages/")
-    async with transport.connect_sse(
+    async with sse_transport.connect_sse(
         request.scope,
         request.receive,
         request._send
@@ -181,11 +184,12 @@ async def handle_sse(request):
         )
 
 
-# Create Starlette app
+# Create Starlette app with Mount for messages (raw ASGI app)
 app = Starlette(
     routes=[
         Route("/health", health_check),
         Route("/sse", handle_sse),
+        Mount("/messages", app=sse_transport.handle_post_message),
     ]
 )
 
